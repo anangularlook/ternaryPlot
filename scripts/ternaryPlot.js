@@ -3,7 +3,7 @@
     "use strict";
 
     angular.module('myApp')
-    .directive('ternaryPlot', ['$timeout', function ($timeout) {
+    .directive('ternaryPlot', ['$timeout', 'ternaryPlotService', function ($timeout, ternaryPlotService) {
 
         controller.$inject = ['$scope', '$element'];
 
@@ -15,15 +15,89 @@
                 var _width = parseInt($attrs.size, 10);
                 var _height = parseInt($attrs.size, 10);
                 var _padding = parseInt($attrs.padding, 10);
+                var _namespace = 'http://www.w3.org/2000/svg';
+                var _showThirdsIntervals = false;
+                if ($attrs.showThirdsIntervals.toLowerCase() == 'true') _showThirdsIntervals = true;
+                var _showTenthsIntervals = false;
+                if ($attrs.showTenthsIntervals.toLowerCase() == 'true') _showTenthsIntervals = true;
 
                 // Create the image
-                $element.append('<svg id="' + $attrs.svgId + '" height="' + _height + '" width="' + _width + '"></svg>'); 
-                var svg = angular.element(document.querySelector('#' + $attrs.svgId));
+                var _attributes = {height: _height, width: _width, id: $attrs.svgId};
+                var svg = document.createElementNS(_namespace, 'svg');
+                for (var attr in _attributes) {
+                    svg.setAttribute(attr, _attributes[attr]);
+                }
+                $element.append(svg);
+                svg = null;
 
                 // Add a grouping for the chart information
-                svg.append('<g id="' + $attrs.chartId + '"></g>');
-            });
+                svg = angular.element(document.querySelector('#' + $attrs.svgId));
+                var _attributes = {id: $attrs.chartId};
+                var chart = document.createElementNS(_namespace, 'g');
+                for (var attr in _attributes) {
+                    chart.setAttribute(attr, _attributes[attr]);
+                }
+                svg.append(chart);
+                chart = null;
 
+                // Add chart outline and background
+                chart = angular.element(document.querySelector('#' + $attrs.chartId))
+                var corners = ternaryPlotService.calculateSideCoordinates(_width, _padding);
+                var path = 'M ' + corners.corner1.x + ' ' + corners.corner1.y + ' L ' + corners.corner2.x + ' ' + corners.corner2.y + ' L ' + corners.corner3.x + ' ' + corners.corner3.y + ' z';
+                var _attributes = {id: $attrs.chartId + '-background-', fill: 'Bisque', d: path, 'stroke': 'black', 'stroke-weight': 2};
+                var bgPath = document.createElementNS(_namespace, 'path');
+                for (var attr in _attributes) {
+                    bgPath.setAttribute(attr, _attributes[attr]);
+                }
+                chart.append(bgPath);
+
+                // Add 1/3 interval lines
+                if (_showThirdsIntervals) {
+                    var intervals = ternaryPlotService.calculatePrimaryIntervals(_width, _padding);
+                    for (var interval in intervals) {
+                        _attributes = {
+                            x1: intervals[interval].startx,
+                            y1: intervals[interval].starty,
+                            x2: intervals[interval].endx,
+                            y2: intervals[interval].endy,
+                            id: $attrs.chartId + 'primary-interval-' + interval,
+                            'stroke': 'SaddleBrown',
+                            'stroke-weight': 1,
+                            'stroke-dasharray': '1,1'
+                        };
+                        var line = document.createElementNS(_namespace, 'line');
+                        for (var attr in _attributes) {
+                            line.setAttribute(attr, _attributes[attr]);
+                        }
+                        chart.append(line);
+                    }
+                }
+
+                // Add tenth interval lines
+                if (_showTenthsIntervals) {
+                    var tenthLines = ternaryPlotService.calculateTenthLines(_width, _padding);
+
+                    for (var i = 0; i < tenthLines.length; i++){
+                        _attributes = {x1: tenthLines[i].x1, x2: tenthLines[i].x2, y1: tenthLines[i].y1, y2: tenthLines[i].y2,'stroke': 'black', 'stroke-weight': 1, 'stroke-dasharray': '1,2', id: $attrs.chartId + '-tenth-line-' + i};
+                        var tenthLine = document.createElementNS(_namespace, 'line');
+                        for (var attr in _attributes) {
+                            tenthLine.setAttribute(attr, _attributes[attr]);
+                        }
+                        chart.append(tenthLine);
+                    }
+                }
+
+                // Add tic marks
+                var ticMarkPaths = ternaryPlotService.calculateTicMarks(_width, _padding);
+                for (var i = 0; i < ticMarkPaths.length; i++){
+                    _attributes = {d: ticMarkPaths[i], 'stroke': 'black', 'stroke-weight': 1, id: $attrs.chartId + '-tic-' + i, fill: 'none'};
+                    var ticPath = document.createElementNS(_namespace, 'path');
+                    for (var attr in _attributes) {
+                        ticPath.setAttribute(attr, _attributes[attr]);
+                    }
+                    chart.append(ticPath);
+                }
+            });
 
         }
 
