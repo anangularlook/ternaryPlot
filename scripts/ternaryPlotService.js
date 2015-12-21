@@ -134,7 +134,7 @@
                     var y1 = endPoints[i].y;
                     var x2 = endPoints[i].x + (ticLength / 2);
                     var y2 = endPoints[i].y + (ticLength * Math.sin(SIXTY_DEGREES));
-                    ticMarkPaths.push('M ' + x1 + ' ' + y1 + ' L ' + endPoints[i].x + ' ' + endPoints[i].y + ' L ' + x2 + ' ' + y2);
+                    ticMarkPaths.push({x1: x1, y1: y1, x2: endPoints[i].x, y2: endPoints[i].y, x3: x2, y3: y2});
                 }
 
                 for (var i = 9; i < 18; i++) {
@@ -142,7 +142,7 @@
                     var y1 = endPoints[i].y - (ticLength * Math.sin(SIXTY_DEGREES));
                     var x2 = endPoints[i].x + (ticLength / 2);
                     var y2 = y1;
-                    ticMarkPaths.push('M ' + x1 + ' ' + y1 + ' L ' + endPoints[i].x + ' ' + endPoints[i].y + ' L ' + x2 + ' ' + y2);
+                    ticMarkPaths.push({x1: x1, y1: y1, x2: endPoints[i].x, y2: endPoints[i].y, x3: x2, y3: y2});
                 }
 
                 for (var i = 18; i < 27; i++){
@@ -150,7 +150,7 @@
                     var y1 = endPoints[i].y;
                     var x2 = endPoints[i].x - (ticLength / 2);
                     var y2 = endPoints[i].y + (ticLength * Math.sin(SIXTY_DEGREES));
-                    ticMarkPaths.push('M ' + x1 + ' ' + y1 + ' L ' + endPoints[i].x + ' ' + endPoints[i].y + ' L ' + x2 + ' ' + y2);
+                    ticMarkPaths.push({x1: x1, y1: y1, x2: endPoints[i].x, y2: endPoints[i].y, x3: x2, y3: y2});
                 }
 
                 return ticMarkPaths;

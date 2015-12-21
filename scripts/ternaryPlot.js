@@ -90,7 +90,8 @@
                 // Add tic marks
                 var ticMarkPaths = ternaryPlotService.calculateTicMarks(_width, _padding);
                 for (var i = 0; i < ticMarkPaths.length; i++){
-                    _attributes = {d: ticMarkPaths[i], 'stroke': 'black', 'stroke-weight': 1, id: $attrs.chartId + '-tic-' + i, fill: 'none'};
+                    var d = 'M ' + ticMarkPaths[i].x1 + ' ' + ticMarkPaths[i].y1 + ' L ' + ticMarkPaths[i].x2 + ' ' + ticMarkPaths[i].y2 + ' L ' + ticMarkPaths[i].x3 + ' ' + ticMarkPaths[i].y3;
+                    _attributes = {d: d, 'stroke': 'black', 'stroke-weight': 1, id: $attrs.chartId + '-tic-' + i, fill: 'none'};
                     var ticPath = document.createElementNS(_namespace, 'path');
                     for (var attr in _attributes) {
                         ticPath.setAttribute(attr, _attributes[attr]);
