@@ -4,7 +4,6 @@
 
     angular.module('myApp')
     .directive('ternaryPlot', ['$timeout', 'ternaryPlotService', function ($timeout, ternaryPlotService) {
-
         controller.$inject = ['$scope', '$element'];
 
         // Link Function - DOM Manipulation
@@ -41,7 +40,7 @@
                 chart = null;
 
                 // Add chart outline and background
-                chart = angular.element(document.querySelector('#' + $attrs.chartId))
+                chart = angular.element(document.querySelector('#' + $attrs.chartId));
                 var corners = ternaryPlotService.calculateSideCoordinates(_width, _padding);
                 var path = 'M ' + corners.corner1.x + ' ' + corners.corner1.y + ' L ' + corners.corner2.x + ' ' + corners.corner2.y + ' L ' + corners.corner3.x + ' ' + corners.corner3.y + ' z';
                 var _attributes = {id: $attrs.chartId + '-background-', fill: 'Bisque', d: path, 'stroke': 'black', 'stroke-weight': 2};
@@ -98,8 +97,8 @@
                     }
                     chart.append(ticPath);
                 }
-            });
 
+            });
         }
 
         // Controller Function - Scope Manager
@@ -109,6 +108,128 @@
             /* BINDABLE MEMBERS */
 
             /* WATCHES */
+            $scope.$watch(function() {return vm.chartData}, function(newVal, oldVal) {
+                // if (newVal === oldVal) return;
+                if (typeof newVal != 'undefined' && newVal != null) {
+                    $timeout(function() {
+                        var newData = ternaryPlotService.convertToCartesian(newVal, vm.size, vm.padding);
+                        var chart = angular.element(document.querySelector('#' + vm.chartId))
+                        for (var index = 0; index < newData.length; index++) {
+                            switch (newData.data[index].symbol.toLowerCase()){
+                                case 'square':
+                                    var marker = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                                    marker.setAttribute('id', 'marker-' + newData.data[index].label);
+                                    var title= document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                                    title.textContent = newData.data[index].label;
+                                    var _attributes = {x: newData[index].x - 5, y: newData[index].y - 5, width: 10, height: 10, 'stroke': 'black', 'stroke-width': 1, fill: newData.data[index].color};
+                                    var symbol = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                                    for (var attr in _attributes) {
+                                        symbol.setAttribute(attr, _attributes[attr]);
+                                    }
+                                    marker.appendChild(title);
+                                    marker.appendChild(symbol);
+                                    break;
+                                case 'diamond':
+                                    var marker = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                                    marker.setAttribute('id', 'marker-' + newData.data[index].label);
+                                    var title= document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                                    title.textContent = newData.data[index].label;
+                                    var d = 'M ' + newData[index].x + ' ' + (newData[index].y - 5) + ' L ' + (newData[index].x - 5) + ' ' + newData[index].y + ' L ' + newData[index].x + ' ' + (newData[index].y + 5) + ' L ' + (newData[index].x + 5) + ' ' + newData[index].y +' z';
+                                    var _attributes = {d: d, 'stroke': 'black', 'stroke-width': 1, fill: newData.data[index].color};
+                                    var symbol = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                    for (var attr in _attributes) {
+                                        symbol.setAttribute(attr, _attributes[attr]);
+                                    }
+                                    marker.appendChild(title);
+                                    marker.appendChild(symbol);
+                                    break;
+                                case 'triangle':
+                                    var marker = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                                    marker.setAttribute('id', 'marker-' + newData.data[index].label);
+                                    var title= document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                                    title.textContent = newData.data[index].label;
+                                    var d = 'M ' + newData[index].x + ' ' + (newData[index].y - 6) + ' L ' + (newData[index].x - 5) + ' ' + (newData[index].y + 3) + ' L ' + (newData[index].x + 5) + ' ' + (newData[index].y + 3) +' z';
+                                    var _attributes = {d: d, 'stroke': 'black', 'stroke-width': 1, fill: newData.data[index].color};
+                                    var symbol = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                    for (var attr in _attributes) {
+                                        symbol.setAttribute(attr, _attributes[attr]);
+                                    }
+                                    marker.appendChild(title);
+                                    marker.appendChild(symbol);
+                                    break;
+                                case 'circle':
+                                default:
+                                    var marker = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                                    marker.setAttribute('id', 'marker-' + newData.data[index].label);
+                                    var title= document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                                    title.textContent = newData.data[index].label;
+                                    var _attributes = {cx: newData[index].x, cy: newData[index].y, r: 5, 'stroke': 'black', 'stroke-width': 1, fill: newData.data[index].color};
+                                    var symbol = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                    for (var attr in _attributes) {
+                                        symbol.setAttribute(attr, _attributes[attr]);
+                                    }
+                                    marker.appendChild(title);
+                                    marker.appendChild(symbol);
+                                    break;
+
+                            }
+
+
+                            chart.append(marker);
+
+                        }
+
+                        // Set Titles
+                        if (newVal.titles != null) {
+                            var corners = ternaryPlotService.calculateSideCoordinates(vm.size, vm.padding);
+                            var mainTitleCenter = {x: vm.size / 2, y: vm.padding / 2 };
+                            var mainTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            mainTitle.textContent = newVal.titles.main;
+                            var _attributes = {'text-anchor': 'middle', x: mainTitleCenter.x, y: mainTitleCenter.y, 'font-family': '"Times New Roman", Times, serif', 'font-size': 36, 'fomt-weight': 'bolder' };
+                            for (var attr in _attributes) {
+                                mainTitle.setAttribute(attr, _attributes[attr]);
+                            }
+                            var subTitleCenter = {x: vm.size / 2, y: vm.padding };
+                            var subTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            subTitle.textContent = newVal.titles.subMain;
+                            var _attributes = {'text-anchor': 'middle', x: subTitleCenter.x, y: subTitleCenter.y, 'font-family': '"Times New Roman", Times, serif', 'font-size': 20, 'fomt-weight': 'bold' };
+                            for (var attr in _attributes) {
+                                subTitle.setAttribute(attr, _attributes[attr]);
+                            }
+                            var aTitleCenter = {x: corners.corner3.x, y: corners.corner3.y - (vm.padding / 5) };
+                            var aTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            aTitle.textContent = newVal.titles.a;
+                            var _attributes = {'text-anchor': 'middle', x: aTitleCenter.x, y: aTitleCenter.y, 'font-family': 'Verdana, Geneva, sans-serif', 'font-size': 16, 'fomt-weight': 'bold' };
+                            for (var attr in _attributes) {
+                                aTitle.setAttribute(attr, _attributes[attr]);
+                            }
+                            var bTitleCenter = {x: corners.corner1.x, y: corners.corner1.y + ((2 * vm.padding) / 5) };
+                            var bTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            bTitle.textContent = newVal.titles.b;
+                            var _attributes = {'text-anchor': 'middle', x: bTitleCenter.x, y: bTitleCenter.y, 'font-family': 'Verdana, Geneva, sans-serif', 'font-size': 16, 'fomt-weight': 'bold' };
+                            for (var attr in _attributes) {
+                                bTitle.setAttribute(attr, _attributes[attr]);
+                            }
+                            var cTitleCenter = {x: corners.corner2.x, y: corners.corner2.y + ((2 * vm.padding) / 5) };
+                            var cTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            cTitle.textContent = newVal.titles.c;
+                            var _attributes = {'text-anchor': 'middle', x: cTitleCenter.x, y: cTitleCenter.y, 'font-family': 'Verdana, Geneva, sans-serif', 'font-size': 16, 'fomt-weight': 'bold' };
+                            for (var attr in _attributes) {
+                                cTitle.setAttribute(attr, _attributes[attr]);
+                            }
+
+
+                            chart.append(mainTitle);
+                            chart.append(subTitle);
+                            chart.append(aTitle);
+                            chart.append(bTitle);
+                            chart.append(cTitle);
+                        }
+
+                    });
+
+                }
+            });
 
             /* EVENT HANDLERS */
 
@@ -129,7 +250,8 @@
                 chartId: '@',
                 svgId: '@',
                 size: '=',
-                padding: '='
+                padding: '=',
+                chartData: '='
             },
             link: link,
             controller: controller,

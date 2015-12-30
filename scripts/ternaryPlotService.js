@@ -4,12 +4,13 @@
 (function(){
 
     angular.module('myApp').
-        factory('ternaryPlotService', [function() {
+        factory('ternaryPlotService', ['SIXTY_DEGREES', function(SIXTY_DEGREES) {
             return {
                 calculateSideCoordinates: calculateSideCoordinates,
                 calculatePrimaryIntervals: calculatePrimaryIntervals,
                 calculateTicMarks: calculateTicMarks,
-                calculateTenthLines: calculateTenthLines
+                calculateTenthLines: calculateTenthLines,
+                convertToCartesian: convertToCartesian
             };
 
             function calculateSideCoordinates(sideLength, padding) {
@@ -39,8 +40,6 @@
                 var interval = {};
 
                 var triangleSide = sideLength - (2 * padding);
-
-                var SIXTY_DEGREES = 60 * (Math.PI / 180);
 
                 var startx = padding + (Math.cos(SIXTY_DEGREES) * (triangleSide / 3));
                 var starty = (sideLength - padding) - (Math.sin(SIXTY_DEGREES) * (triangleSide / 3));
@@ -84,8 +83,6 @@
             function calculateTenthsEndPoints(sideLength, padding) {
                 var endPoints = [];
 
-                var SIXTY_DEGREES = 60 * (Math.PI / 180);
-
                 // A - B line
                 var startingX = sideLength / 2;
                 var triangleSide = sideLength - (2 * padding);
@@ -121,8 +118,6 @@
 
             function calculateTicMarks(sideLength, padding){
                 var ticMarkPaths = [];
-
-                var SIXTY_DEGREES = 60 * (Math.PI / 180);
 
                 var ticLength = (sideLength - (2 * padding)) / 50;
                 var endPoints = calculateTenthsEndPoints(sideLength, padding);
@@ -173,6 +168,23 @@
                 }
 
                 return tenthLines;
+            }
+
+            function convertToCartesian(data, sideLength, padding) {
+                var returnData = [];
+                returnData.data = data;
+                var SIXTY_DEGREES = 60 * (Math.PI / 180);
+
+                for (var index = 0; index < data.length; index++) {
+                    var coordinateTotal = data[index].a + data[index].b + data[index].c;
+                    var triangleSide = sideLength - (2 * padding);
+                    var x = (sideLength - padding) - (triangleSide * ((data[index].a / coordinateTotal) + ((data[index].b / coordinateTotal) * Math.cos(SIXTY_DEGREES))));
+                    var y = (sideLength - padding) - (triangleSide * ((data[index].b / coordinateTotal) * Math.sin(SIXTY_DEGREES)));
+
+                    returnData.push({x: x, y: y});
+                }
+
+                return returnData;
             }
 
         }])

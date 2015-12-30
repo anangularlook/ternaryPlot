@@ -4,12 +4,14 @@
 <head>
     <title></title>
 </head>
-<body data-ng-app="myApp">
-    <div data-ternary-plot="" data-svg-id="svgImage" data-chart-id="svgChart" data-size="600" data-padding="50" data-show-thirds-intervals="true" data-show-tenths-intervals="true"></div>
+<body data-ng-app="myApp" ng-controller="mainController as main">
+    <div data-ternary-plot="" data-svg-id="svgImage" data-chart-id="svgChart" data-size="600" data-padding="50" data-show-thirds-intervals="true" data-show-tenths-intervals="true" data-chart-data="main.data"></div>
 
     <script src="scripts/libs/angular.min.js"></script>
     <script src="scripts/app.js"></script>
+    <script src="scripts/appController.js"></script>
     <script src="scripts/ternaryPlot.js"></script>
     <script src="scripts/ternaryPlotService.js"></script>
+
 </body>
 </html>
